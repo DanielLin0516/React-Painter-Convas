@@ -1,0 +1,15 @@
+.bottomContainer {
+  position: absolute;
+  display: flex;
+  /* top: 0; */
+  left: 50%;
+  bottom: 0;
+  transform: translate(-50%,-50%);
+  padding-right: 0.5rem;
+  padding-left: 0.5rem;
+  height: 3rem;
+  background-color: rgb(254,254,254);
+  border-radius: 1rem;
+  justify-content: space-evenly;
+  align-items: center;
+}
