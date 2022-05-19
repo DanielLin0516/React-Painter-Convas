@@ -19,7 +19,64 @@ function Painter() {
   const [x, setX] = useState(0);
   //convas y坐标
   const [y, setY] = useState(0);
+  const [path, setPath] = useState("M");
+  //插入的画图路径dom节点
 
+  //鼠标按下
+  const mousedownHandler = (e: MouseEvent) => {
+    setIsDraw(true);
+    setPath(path + `${e.pageX},${e.pageY} Q`);
+    const element = document.createElementNS("http://www.w3.org/2000/svg","path");
+    element.setAttribute("d",`M 100, 100 Q 300,100 200,300 `)
+    element.setAttribute("fill","transparent")
+    element.setAttribute("stroke","black")
+    element.setAttribute("stroke-width","3")
+    painter.current?.append(element);
+  };
+  const touchdownHandler = (e:TouchEvent) => {
+    setIsDraw(true);
+    setPath(path + `${e.changedTouches[0].pageX},${e.changedTouches[0].pageY} Q`);
+    const element = document.createElementNS("http://www.w3.org/2000/svg","path");
+    element.setAttribute("d",`M 100, 100 Q 300,100 200,300 `)
+    element.setAttribute("fill","transparent")
+    element.setAttribute("stroke","black")
+    element.setAttribute("stroke-width","3")
+    painter.current?.append(element);
+  }
+
+  //鼠标滑动
+  const mousemoveHandler = (e: MouseEvent) => {
+    if (isDraw) {
+      console.log(e);
+    }
+  };
+
+  //鼠标松开
+  const mouseupHandler = (e: MouseEvent) => {
+    setIsDraw(false);
+    setPath("M");
+
+  };
+
+  //画路线的组件
+
+  useEffect(() => {
+    if (!painter.current) return;
+    if (isPc(window.navigator)) {
+      painter.current.addEventListener("mousedown", mousedownHandler);
+      painter.current.addEventListener("mousemove", mousemoveHandler);
+      painter.current.addEventListener("mouseup", mouseupHandler);
+    }else {
+      painter.current.addEventListener("touchstart", touchdownHandler);
+    }
+    return () => {
+      if (isPc(window.navigator)) {
+        painter.current?.removeEventListener("mousedown", mousedownHandler);
+        painter.current?.removeEventListener("mousemove", mousemoveHandler);
+        painter.current?.removeEventListener("mouseup", mouseupHandler);
+      }
+    };
+  }, [isDraw, path]);
   return (
     <div className={style.container}>
       <div className={style.Stylecontrol}>
@@ -100,7 +157,14 @@ function Painter() {
           </div>
         </div>
       )}
-      <svg className={style.paint} ref={painter}></svg>
+      <svg className={style.paint} ref={painter}>
+        {/* <path
+          d="M 100, 100 Q 300,100 200,300 "
+          fill="transparent"
+          stroke="black"
+          stroke-width="3"
+        /> */}
+      </svg>
     </div>
   );
 }
