@@ -2,9 +2,15 @@ import React, { useRef, useEffect, useState } from "react";
 import style from "./index.module.css";
 import { isPc } from "../../tools/isPC";
 import { Colors, Size, LineSet, Dash } from "../../tools/LineSetting";
-import { BarsOutlined, EditOutlined } from "@ant-design/icons";
+import { drawLine, drawSquare } from "../../tools/LineStyle";
+import {
+  BarsOutlined,
+  CloudSyncOutlined,
+  EditOutlined,
+} from "@ant-design/icons";
 function Painter() {
   const painter = useRef<HTMLCanvasElement | null>(null);
+  const [choose, setChoose] = useState("paint");
   //是否正在画画
   const [isDraw, setIsDraw] = useState<boolean>(false);
   //选择颜色弹窗
@@ -19,6 +25,8 @@ function Painter() {
   const [x, setX] = useState(0);
   //convas y坐标
   const [y, setY] = useState(0);
+  //canvas imgdata数组
+  const [imageData, setImageData] = useState<ImageData[]>([]);
   //PC按下鼠标记录起始坐标，并将状态改变
   const mousedownHandler = (e: MouseEvent) => {
     setIsDraw((isDraw) => !isDraw);
@@ -34,65 +42,118 @@ function Painter() {
   //PC松开鼠标
   const mouseupHandler = (e: MouseEvent) => {
     const ctx = painter.current?.getContext("2d");
-    if (!ctx) return;
+    if (!ctx || !painter.current) return;
     if (isDraw) {
       setIsDraw((isDraw) => !isDraw);
-      drawLine(ctx, x, y, e.pageX, e.pageY);
       setX((x) => 0);
       setY((y) => 0);
+      setImageData([
+        ...imageData,
+        ctx.getImageData(
+          0,
+          0,
+          painter.current.offsetWidth,
+          painter.current.offsetHeight
+        ),
+      ]);
+
+      if (choose === "square") {
+        // drawSquare(ctx, x, y, e.pageX, e.pageY,Colors[colorline.idColor],Size[colorline.idSize],colorline)
+      }
     }
   };
   //手机端离开屏幕
   const touchendHandler = (e: TouchEvent) => {
     const ctx = painter.current?.getContext("2d");
-    if (!ctx) return;
+    if (!ctx || !painter.current) return;
     if (isDraw) {
       setIsDraw((isDraw) => !isDraw);
-      drawLine(ctx, x, y, e.changedTouches[0].pageX, e.changedTouches[0].pageY);
       setX((x) => 0);
       setY((y) => 0);
+      setImageData([
+        ...imageData,
+        ctx.getImageData(
+          0,
+          0,
+          painter.current.offsetWidth,
+          painter.current.offsetHeight
+        ),
+      ]);
+      if (choose === "square") {
+        // drawSquare(ctx, x, y, e.changedTouches[0].pageX, e.changedTouches[0].pageY,Colors[colorline.idColor],Size[colorline.idSize],colorline)
+      }
     }
   };
   //PC在鼠标移动时候判断是否正在画画并且调用划线事件传入起点位置以及此时变化的x，y值进行更新
   const mousemoveHandler = (e: MouseEvent) => {
     const ctx = painter.current?.getContext("2d");
-    if (!ctx) return;
+    if (!ctx || !painter.current) return;
     if (isDraw) {
-      drawLine(ctx, x, y, e.pageX, e.pageY);
-      setX((x) => e.pageX);
-      setY((y) => e.pageY);
+      //判断是要画线还是画矩形
+      if (choose === "paint") {
+        drawLine(
+          ctx,
+          x,
+          y,
+          e.pageX,
+          e.pageY,
+          Colors[colorline.idColor],
+          Size[colorline.idSize],
+          colorline
+        );
+        setX((x) => e.pageX);
+        setY((y) => e.pageY);
+      } else if (choose === "square") {
+        drawSquare(
+          ctx,
+          x,
+          y,
+          e.pageX,
+          e.pageY,
+          Colors[colorline.idColor],
+          Size[colorline.idSize],
+          colorline,
+          painter.current,
+          imageData[imageData.length - 1]
+        );
+      }
     }
   };
   //手机端手势移动过程
   const touchmoveHandler = (e: TouchEvent) => {
     const ctx = painter.current?.getContext("2d");
-    if (!ctx) return;
+    if (!ctx || !painter.current) return;
     if (isDraw) {
-      drawLine(ctx, x, y, e.changedTouches[0].pageX, e.changedTouches[0].pageY);
-      setX((x) => e.changedTouches[0].pageX);
-      setY((y) => e.changedTouches[0].pageY);
+      if (choose === "paint") {
+        drawLine(
+          ctx,
+          x,
+          y,
+          e.changedTouches[0].pageX,
+          e.changedTouches[0].pageY,
+          Colors[colorline.idColor],
+          Size[colorline.idSize],
+          colorline
+        );
+        setX((x) => e.changedTouches[0].pageX);
+        setY((y) => e.changedTouches[0].pageY);
+      } else if (choose === "square") {
+        drawSquare(
+          ctx,
+          x,
+          y,
+          e.changedTouches[0].pageX,
+          e.changedTouches[0].pageY,
+          Colors[colorline.idColor],
+          Size[colorline.idSize],
+          colorline,
+          painter.current,
+          imageData[imageData.length - 1]
+        );
+      }
     }
   };
-  //划线，提供画板和坐标起始和末位置
-  const drawLine = (
-    ctx: CanvasRenderingContext2D,
-    x1: number,
-    y1: number,
-    x2: number,
-    y2: number
-  ) => {
-    ctx.beginPath();
-    //设置颜色
-    ctx.strokeStyle = Colors[colorline.idColor].color;
-    ctx.lineWidth = Size[colorline.idSize].width;
-    ctx.lineCap = "round";
-    if (colorline.idDash) ctx.setLineDash([1, 15]);
-    else ctx.setLineDash([])
-    ctx.moveTo(x1, y1);
-    ctx.lineTo(x2, y2);
-    ctx.stroke();
-    ctx.closePath();
-  };
+
   //自适应屏幕
   function resize_canvas() {
     if (!painter.current) return;
@@ -104,8 +165,21 @@ function Painter() {
     }
   }
   useEffect(() => {
-    if (!painter.current) return;
+    const ctx = painter.current?.getContext("2d");
+    if (!painter.current || !ctx) return;
     resize_canvas();
+    //对于撤销栈保存一个空白的栈底不然没法撤销
+    if (imageData.length === 0) {
+      setImageData([
+        ...imageData,
+        ctx.getImageData(
+          0,
+          0,
+          painter.current.offsetWidth,
+          painter.current.offsetHeight
+        ),
+      ]);
+    }
     if (isPc(window.navigator)) {
       painter.current.addEventListener("mousedown", mousedownHandler);
       painter.current.addEventListener("mouseup", mouseupHandler);
@@ -115,6 +189,44 @@ function Painter() {
       painter.current.addEventListener("touchend", touchendHandler);
       painter.current.addEventListener("touchmove", touchmoveHandler);
     }
+    //接收选择的是否是线条还是矩形
+    PubSub.subscribe("choose", (msg, data) => {
+      setChoose(data);
+      const ctx = painter.current?.getContext("2d");
+      if (!painter.current || !ctx) return;
+      if (data === "delete") {
+        ctx?.clearRect(
+          0,
+          0,
+          painter.current?.offsetWidth,
+          painter.current?.offsetHeight
+        );
+        setImageData([
+          ...imageData,
+          ctx.getImageData(
+            0,
+            0,
+            painter.current.offsetWidth,
+            painter.current.offsetHeight
+          ),
+        ]);
+      } else if (data === "uptodo") {
+        if (imageData.length === 1) alert("没有东西可以撤销啦！！");
+        else {
+          imageData.pop();
+          setImageData([...imageData]);
+          ctx.putImageData(
+            imageData[imageData.length - 1],
+            0,
+            0,
+            0,
+            0,
+            painter.current.offsetWidth,
+            painter.current.offsetHeight
+          );
+        }
+      }
+    });
     return () => {
       if (isPc(window.navigator)) {
         painter.current?.removeEventListener("mousedown", mousedownHandler);
@@ -125,6 +237,7 @@ function Painter() {
         painter.current?.removeEventListener("touchend", touchendHandler);
         painter.current?.removeEventListener("touchmove", touchmoveHandler);
       }
+      PubSub.unsubscribe("choose");
     };
   }, [isDraw, x, y]);
   return (

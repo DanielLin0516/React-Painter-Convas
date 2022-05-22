@@ -1,15 +1,15 @@
 export const Colors = [
   {
-    color: "black",
+    color: "rgb(29,29,29)",
   },
   {
-    color: "red",
+    color: "rgb(255,33,51",
   },
   {
     color: "pink",
   },
   {
-    color: "blue",
+    color: "rgb(28,126,214)",
   },
   {
     color: "yellow",
