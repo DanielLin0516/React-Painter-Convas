@@ -56,7 +56,6 @@ function Painter() {
           painter.current.offsetHeight
         ),
       ]);
-
       if (choose === "square") {
         // drawSquare(ctx, x, y, e.pageX, e.pageY,Colors[colorline.idColor],Size[colorline.idSize],colorline)
       }
@@ -167,6 +166,7 @@ function Painter() {
   useEffect(() => {
     const ctx = painter.current?.getContext("2d");
     if (!painter.current || !ctx) return;
+    //自适应屏幕
     resize_canvas();
     //对于撤销栈保存一个空白的栈底不然没法撤销
     if (imageData.length === 0) {
