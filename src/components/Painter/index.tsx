@@ -324,5 +324,5 @@ function Painter() {
     </div>
   );
 }
-
+  
 export default Painter;
