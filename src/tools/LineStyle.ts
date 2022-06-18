@@ -75,7 +75,6 @@ export const eraseLine = (
   ctx.lineCap = 'round'
   ctx.globalCompositeOperation = 'destination-out'
   ctx.setLineDash([])
-  console.log(x1, y1, 'and', x2, y2)
   ctx.moveTo(x1, y1);
   ctx.lineTo(x2, y2);
   // ctx.arc(x2, y2, size.width, 0, Math.PI * 2, false)
