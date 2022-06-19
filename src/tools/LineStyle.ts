@@ -13,6 +13,7 @@ export const drawLine = (
   ctx.strokeStyle = color.color
   ctx.lineWidth = size.width
   ctx.lineCap = 'round'
+  ctx.globalCompositeOperation = 'source-over'
   if (colorline.idDash) ctx.setLineDash([1, 15])
   else ctx.setLineDash([])
   ctx.moveTo(x1, y1)
@@ -37,6 +38,7 @@ export const drawSquare = (
   ctx.strokeStyle = color.color
   ctx.lineWidth = size.width
   ctx.lineCap = 'round'
+  ctx.globalCompositeOperation = 'source-over'
   ctx.fillStyle = color.color
   if (colorline.idDash) ctx.setLineDash([1, 15])
   else ctx.setLineDash([])
@@ -75,8 +77,8 @@ export const eraseLine = (
   ctx.lineCap = 'round'
   ctx.globalCompositeOperation = 'destination-out'
   ctx.setLineDash([])
-  ctx.moveTo(x1, y1);
-  ctx.lineTo(x2, y2);
+  ctx.moveTo(x1, y1)
+  ctx.lineTo(x2, y2)
   // ctx.arc(x2, y2, size.width, 0, Math.PI * 2, false)
   ctx.stroke()
   // ctx.fill()

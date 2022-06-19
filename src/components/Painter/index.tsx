@@ -55,14 +55,9 @@ function Painter() {
           painter.current.offsetWidth,
           painter.current.offsetHeight
         ),
-<<<<<<< HEAD
       ])
 
       if (choose === 'square') {
-=======
-      ]);
-      if (choose === "square") {
->>>>>>> 42af03c8dacc3b989b68dc50b2640beb57789d97
         // drawSquare(ctx, x, y, e.pageX, e.pageY,Colors[colorline.idColor],Size[colorline.idSize],colorline)
       }
     }
@@ -174,16 +169,9 @@ function Painter() {
     }
   }
   useEffect(() => {
-<<<<<<< HEAD
     const ctx = painter.current?.getContext('2d')
     if (!painter.current || !ctx) return
     resize_canvas()
-=======
-    const ctx = painter.current?.getContext("2d");
-    if (!painter.current || !ctx) return;
-    //自适应屏幕
-    resize_canvas();
->>>>>>> 42af03c8dacc3b989b68dc50b2640beb57789d97
     //对于撤销栈保存一个空白的栈底不然没法撤销
     if (imageData.length === 0) {
       setImageData([
@@ -337,10 +325,5 @@ function Painter() {
     </div>
   )
 }
-<<<<<<< HEAD
 
 export default Painter
-=======
-  
-export default Painter;
->>>>>>> 42af03c8dacc3b989b68dc50b2640beb57789d97
